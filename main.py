@@ -87,7 +87,7 @@ def ensure_requirements_met(requirements: dict) -> tuple[bool, list | None]:
         '~=' : operator.ne,
     }
 
-    suggested = [f"The following is recommended to fix the issue:s"]
+    suggested = [f"The following is recommended to fix the issue:"]
 
     for _, package in enumerate(requirements):
         required = requirements[package]
@@ -97,12 +97,13 @@ def ensure_requirements_met(requirements: dict) -> tuple[bool, list | None]:
 
         if package == 'Python':
             py_version = ".".join(map(str, sys.version_info[:3]))
-            py_minor = ".".join(map(str, sys.version_info[:2]))
+            py_minor = '.'.join(require_version.split('.')[:2])
 
             if operators[require_type](version.parse(py_version), version.parse(require_version)):
                 continue
             else:
                 print(f"This version of Python is not supported!")
+                py_version = require_version
                 suggested.append("\tPython can be fixed with either of the following:")
                 suggested.append(f"\t\tInstall Python with winget: 'winget install -e --id Python.Python.{py_minor} -v {py_version}'")
                 suggested.append(f"\t\tInstall the newest version of python at 'https://www.python.org/downloads/release/python-{py_version.replace(".", "")}/'")
