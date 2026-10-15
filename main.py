@@ -4,10 +4,22 @@
 # THIS SCRIPT IS PROTECTED UNDER THE GNU GENERAL PUBLIC LICENSE.
 
 from collections import defaultdict
+from packaging import version
+import importlib.metadata
 from pathlib import Path
+import operator
+import sys
+
 import cv2
-import numpy as np
 import shapely
+import numpy as np
+
+REQUIREMENTS = {
+    'opencv-python' : '>= 4.0.0.21',
+    'shapely' : '>= 2.2.0',
+    'numpy' : '>= 2.0.0',
+    'Python' : '>= 3.11',
+}
 
 COLOR_MAP = [
     # Reds & Deep Oranges
@@ -61,6 +73,59 @@ HATCH_4X4 = (
     )
     + 0.5
 ) / 16.0
+
+def ensure_requirements_met(requirements: dict) -> tuple[bool, list | None]:
+    # Ensures all packages meet their minimum versions. (And also exist)
+
+    class VersionNotMetError(Exception):
+        pass
+
+    operators = {
+        '>=' : operator.ge,
+        '<=' : operator.le,
+        '==' : operator.eq,
+        '~=' : operator.ne,
+    }
+
+    suggested = [f"The following is recommended to fix the issue:s"]
+
+    for _, package in enumerate(requirements):
+        required = requirements[package]
+        
+        require_type = required[:2]
+        require_version = required[3:]
+
+        if package == 'Python':
+            py_version = ".".join(map(str, sys.version_info[:3]))
+            py_minor = ".".join(map(str, sys.version_info[:2]))
+
+            if operators[require_type](version.parse(py_version), version.parse(require_version)):
+                continue
+            else:
+                print(f"This version of Python is not supported!")
+                suggested.append("\tPython can be fixed with either of the following:")
+                suggested.append(f"\t\tInstall Python with winget: 'winget install -e --id Python.Python.{py_minor} -v {py_version}'")
+                suggested.append(f"\t\tInstall the newest version of python at 'https://www.python.org/downloads/release/python-{py_version.replace(".", "")}/'")
+                continue
+
+        try:
+            current_version = importlib.metadata.version(package)
+            
+            if operators[require_type](version.parse(current_version), version.parse(require_version)):
+                continue
+
+            raise VersionNotMetError((package, current_version, require_version, require_type))
+        except importlib.metadata.PackageNotFoundError as missing_package:
+            print(f"The package '{package}' could not be found!")
+            suggested.append(f'\tInstall {package} using {"'"}python -m pip install "{package}{require_type}{require_version}"{"'"}')
+        except VersionNotMetError as outdated_package:
+            print(f"The package '{package}' is outdated! ({current_version} ![{require_type}] {require_version})")
+            suggested.append(f'\tUpdate {package} using {"'"}python -m pip install --upgrade "{package}{require_type}{require_version}"{"'"}')
+
+    if len(suggested) > 1:
+        # Something isnt ready.
+        return (False, suggested)
+    return (True, None)
 
 def _build_thinning_kernels() -> list[np.ndarray]:
     # Builds 8 Golay L-Kernels for topological hit-or-miss skeletonization.
@@ -592,7 +657,7 @@ def process_at_scale(
     return fine_image, rough_image, tri_count, line_count, mean_error, true_accuracy
 
 def main(
-    image_path: str = "image4.png",
+    image_path: str = "CMYK_Test.png",
     n_colors: int = 4,
     auto_contrast: bool = True,
     clip_percent: tuple[float, float] = (1.0, 99.0),
@@ -608,6 +673,13 @@ def main(
     dither_cell_size: int = 1,
     show_live_preview: bool = True,
 ) -> None:
+    packages_ready, error_message = ensure_requirements_met(REQUIREMENTS)
+    if not error_message == None:
+        error_message = '\n'.join(error_message)
+
+    if not packages_ready:
+        raise ModuleNotFoundError(f"Not all requirements are met.\n{error_message}")
+    
     if not Path(image_path).is_file():
         raise FileNotFoundError(f"Could not find input image: '{image_path}'.")
 
