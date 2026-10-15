@@ -7,10 +7,11 @@
 
 # Functions and their Usage
 ## Table of Functions
-#### [`main()`](#main) - Main Program
-#### [`enhance_source_contrast()`](#enhance_source_contrast) - Contrast Enhancement
+#### [`main()`](#main-jump-to-top) - Main Program
+#### [`enhance_source_contrast()`](#enhance_source_contrast-jump-to-top) - Contrast Enhancement
 
-## **`main()`**
+## **`main()`** <sup>[Jump to top](#functions-and-their-usage)</sup>
+
 > `main()` is the main portion of the program, and is how you normally interact with the script.
 > <br>***Note:** Other functions explained may be extremely similar/identical to the explanation for main()'s variables, as they are directly passed.*
 
@@ -236,7 +237,7 @@ main(
 )
 ```
 
-## **`enhance_source_contrast()`**
+## **`enhance_source_contrast()`** <sup>[Jump to top](#functions-and-their-usage)</sup>
 > Normalizes the dynamic range via percentile clipping and blends in local contrast enhancement ([CLAHE]()). This results in mid-tone structures standing out cleanly.
 
 ```python
