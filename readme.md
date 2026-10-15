@@ -1,8 +1,8 @@
 # System Requirements
 - **[Python](https://python.org/downloads/release/python-31117)** $>=$ `3.11`
-- **[opencv-python](https://pypi.org/project/opencv-python/)** $>=$ `4.0.0.21`
-- **[shapely](https://pypi.org/project/shapely/)** $>=$ `2.2.0`
-- **[numpy](https://pypi.org/project/numpy/)** $>=$ `2.0.0`
+- **[opencv-python](https://pypi.org/project/opencv-python/4.0.0.21/#history)** $>=$ `4.0.0.21`
+- **[shapely](https://pypi.org/project/shapely/2.2.0/#history)** $>=$ `2.2.0`
+- **[numpy](https://pypi.org/project/numpy/2.0.0/#history)** $>=$ `2.0.0`
 > *Note the script will automatically ensure all packages are installed and of a compatible version.*
 
 # Functions and their Usage
@@ -253,7 +253,7 @@ enhance_source_contrast(
 ### `gray_img`
 Specifies the input image array that the contrast enhancement is applied to.
 
-> *`gray_img` must be a two-dimensional [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html) representing a grayscale image.
+> *`gray_img` must be a two-dimensional [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html) representing a grayscale image.*
 
 ```python
 from main import enhance_source_contrast
