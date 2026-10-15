@@ -73,6 +73,22 @@ HATCH_4X4 = (
     )
     + 0.5
 ) / 16.0
+# 1050% avg
+
+# 4x4 Line-Hatch matrix (groups thresholds into vertical/horizontal runs)
+VERT_HATCH_4X4 = (
+    np.array(
+        [
+            [0, 8, 4, 12],
+            [1, 9, 5, 13],
+            [2, 10, 6, 14],
+            [3, 11, 7, 15],
+        ],
+        dtype=np.float32
+    )
+    + 0.5
+) / 16.0
+# 1300% avg
 
 def ensure_requirements_met(requirements: dict) -> tuple[bool, list | None]:
     # Ensures all packages meet their minimum versions. (And also exist)
@@ -319,7 +335,7 @@ def quantize_with_selective_dither(
     denom = max(1e-5, 1.0 - 2.0 * tau)
     t_remapped = np.clip((t - tau) / denom, 0.0, 1.0)
 
-    matrix = HATCH_4X4 if dither_mode.lower() == "hatch" else BAYER_4X4
+    matrix = HATCH_4X4 if dither_mode.lower() == "hatch" else (VERT_HATCH_4X4 if dither_mode.lower() == "vertical hatch" else BAYER_4X4)
     cell = max(1, int(dither_cell_size))
     y_idx = (np.arange(h)[:, None] // cell) % 4
     x_idx = (np.arange(w)[None, :] // cell) % 4
@@ -658,7 +674,7 @@ def process_at_scale(
     return fine_image, rough_image, tri_count, line_count, mean_error, true_accuracy
 
 def main(
-    image_path: str = "CMYK_Test.png",
+    image_path: str = "Shade_Test.png",
     n_colors: int = 4,
     auto_contrast: bool = True,
     clip_percent: tuple[float, float] = (1.0, 99.0),
@@ -670,7 +686,7 @@ def main(
     max_scale: float = 9.0,
     min_improvement: float = 0.05,
     match_tolerance: float = 14.0,
-    dither_mode: str = "bayer",
+    dither_mode: str = "vertical hatch",
     dither_cell_size: int = 1,
     show_live_preview: bool = True,
 ) -> None:
